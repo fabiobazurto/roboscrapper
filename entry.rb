@@ -1,8 +1,8 @@
 class Entry
   attr_accessor :id, :order, :title, :comments, :points
 
-  def initialize(id, title, order, comments, points)
-    @id= id
+  def initialize( title, order, comments, points)
+    @title = title
     @order = order
     @comments = comments
     @points = points
