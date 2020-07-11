@@ -7,10 +7,12 @@ require_relative './entry.rb'
 class Crawler
   DEFAULT_OPTIONS={
     parent_css:'.itemlist',
-    score_css: '.score',
-    title_css: '.storylink',
-    rank_css: '.rank',
-    comments_css: '.subtext'
+    score_css: 'tr:nth-child(2) .score',
+    title_css: 'tr:first-child td.title:last-child .storylink',
+    rank_css:  'tr:first-child td.title:first-child .rank',
+    comments_css: 'tr:nth-child(2) .subtext a:last-child',
+    rows: 'tr',
+    more_css: 'tr:last-child'
   }
   
 
@@ -29,7 +31,7 @@ class Crawler
   def fetch(requested_rows_number)
     #Setup config to variables
     raw_page    = scrape_page
-    raw_entries = raw_page.css(DEFAULT_OPTIONS[:parent_css]).css('tr')
+    raw_entries = raw_page.css(DEFAULT_OPTIONS[:parent_css])
 
     parse_results(raw_entries, requested_rows_number-1)
   end
@@ -38,31 +40,31 @@ class Crawler
   def parse_results(raw_entries, number_of_rows)
     #Preparing loop to iterate table rows
     @entries=Array.new
-    current_index = 0
-    saved_entries_counter = 0
-    total_rows = raw_entries.count
+ 
+    raw_entries.css(DEFAULT_OPTIONS[:more_css]).remove if raw_entries.css(DEFAULT_OPTIONS[:more_css]).text=="More"
 
-    while saved_entries_counter<=number_of_rows and current_index<=total_rows-1
-
-      data_entry = raw_entries[current_index]
-      additional_data = raw_entries[current_index+1]
+    while raw_entries.css(DEFAULT_OPTIONS[:rows]).count>1
 
       #Parsing text digits to integer
-      comments=additional_data.css(DEFAULT_OPTIONS[:comments_css]).css('a')[3].text.gsub(/[^0-9]/, '') if additional_data.css(DEFAULT_OPTIONS[:comments_css]).css('a').count>3 
-                 #.chars.map {|x| x[/\d+/]}.join 
-      points  =additional_data.css(DEFAULT_OPTIONS[:score_css]).text.gsub(/[^0-9]/, '') if additional_data.css(DEFAULT_OPTIONS[:score_css]).count>0
-      
+      comments= raw_entries.css(DEFAULT_OPTIONS[:comments_css])[1].text.gsub(/[^0-9]/, '') if raw_entries.css(DEFAULT_OPTIONS[:comments_css]).count>0
+
+      points  = raw_entries.css(DEFAULT_OPTIONS[:score_css]).text.gsub(/[^0-9]/, '') if raw_entries.css(DEFAULT_OPTIONS[:score_css]).count>0
+
+
       
       @entries<<Entry.new({
-                          title:data_entry.css(DEFAULT_OPTIONS[:title_css]).text,
-                          order:data_entry.css(DEFAULT_OPTIONS[:rank_css]).text,
+                          title: raw_entries.css(DEFAULT_OPTIONS[:title_css]).text,
+                          order:raw_entries.css(DEFAULT_OPTIONS[:rank_css]).text,
                           comments:comments,
                           points:points})
-
-      saved_entries_counter = saved_entries_counter+1
-      current_index = current_index+3
+      #Cleaning raw_entries
+      raw_entries.css('tr:first-child').remove
+      raw_entries.css('tr:first-child').remove      
+      raw_entries.css('tr:first-child').remove
+ 
 
     end
+
     @entries    
   end
   

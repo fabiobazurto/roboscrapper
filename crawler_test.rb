@@ -22,7 +22,7 @@ class CrawlerTest < Test::Unit::TestCase
           entry = Entry.new({title:'', order:'', comments:'', points:''})
     }
   end
-  
+
   def test_fetching
 
     entries = setup

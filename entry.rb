@@ -2,7 +2,6 @@ class Entry
   attr_accessor  :order, :title, :comments, :points
 
   def initialize( attributes={})
-    
     validate_blank [:title,:order], attributes, ""
     
     @title = attributes[:title]
