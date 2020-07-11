@@ -12,9 +12,6 @@ class Entry
     
   end
 
-  def to_s
-    "#{@title}"
-  end
   def title=(title)
     title if validate_blank(:title,title)
   end
@@ -23,6 +20,11 @@ class Entry
     validate_blank(:title,comments)
   end
 
+  #Public Methods
+  def to_s
+    "#{@order} #{@title}"
+  end
+  
 
   private
 
@@ -33,9 +35,9 @@ class Entry
     true
   end
   def validate_blank(validating_keys,attrs,comparision_value)
-    attrs.select{|key| validating_keys.include?key}.each{|key,value|
-      if value==comparision_value or value.nil?
-        raise Exception("#{key} can't be blank")
+    validating_keys.each{|key|
+      if attrs[key]==comparision_value or attrs[key].nil?
+        raise "#{key} can't be blank"
       end
     }
     

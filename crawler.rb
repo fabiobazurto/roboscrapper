@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'nokogiri'
 require 'httparty'
 require 'byebug'
@@ -26,25 +27,30 @@ class Crawler
   # @requested_rows_number - Number of records to extract from html
   # 
   def fetch(requested_rows_number)
-    
     #Setup config to variables
     raw_page    = scrape_page
     raw_entries = raw_page.css(DEFAULT_OPTIONS[:parent_css]).css('tr')
 
-    #Preparing loop to iterate table rows
+    parse_results(raw_entries, requested_rows_number-1)
+  end
 
+
+  def parse_results(raw_entries, number_of_rows)
+    #Preparing loop to iterate table rows
+    @entries=Array.new
     current_index = 0
     saved_entries_counter = 0
-    max_loop = requested_rows_number-1
-    
-    while saved_entries_counter<requested_rows_number and current_index<raw_entries.count
+    total_rows = raw_entries.count
+
+    while saved_entries_counter<=number_of_rows and current_index<=total_rows-1
 
       data_entry = raw_entries[current_index]
       additional_data = raw_entries[current_index+1]
 
       #Parsing text digits to integer
-      comments=additional_data.css(DEFAULT_OPTIONS[:comments_css]).css('a')[3].text.chars.map {|x| x[/\d+/]}.join if additional_data.css(DEFAULT_OPTIONS[:comments_css]).css('a').count>3 
-      points  =additional_data.css(DEFAULT_OPTIONS[:score_css]).text.chars.map {|x| x[/\d+/]}.join if additional_data.css(DEFAULT_OPTIONS[:score_css]).count>0
+      comments=additional_data.css(DEFAULT_OPTIONS[:comments_css]).css('a')[3].text.gsub(/[^0-9]/, '') if additional_data.css(DEFAULT_OPTIONS[:comments_css]).css('a').count>3 
+                 #.chars.map {|x| x[/\d+/]}.join 
+      points  =additional_data.css(DEFAULT_OPTIONS[:score_css]).text.gsub(/[^0-9]/, '') if additional_data.css(DEFAULT_OPTIONS[:score_css]).count>0
       
       
       @entries<<Entry.new({
@@ -55,10 +61,11 @@ class Crawler
 
       saved_entries_counter = saved_entries_counter+1
       current_index = current_index+3
-    end
-    @entries
-  end
 
+    end
+    @entries    
+  end
+  
   # Filter all previous entries with more than five words in the title ordered by the amount of comments first.
   #
   # @max_words_in_title - Maximum number of words in the title
@@ -76,7 +83,7 @@ class Crawler
   # Returns
   # An array of objects Entry
   def words_less_than(max_words_in_title, order_key)
-    entries.find_all{ |entry|  entry.title.split(' ').count<max_words_in_title}.sort_by(&order_key)
+    entries.find_all{ |entry|  entry.title.split(' ').count<=max_words_in_title}.sort_by(&order_key)
   end
   
   

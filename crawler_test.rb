@@ -2,6 +2,12 @@ require "test/unit"
 require_relative './crawler'
 
 class CrawlerTest < Test::Unit::TestCase
+
+  DEFAULT_OPTIONS={
+    base_url: 'https://news.ycombinator.com/',
+    requested_rows: 30
+  }
+  
   def test_create_entry
 
     # Creating a valid Entry object
@@ -17,10 +23,35 @@ class CrawlerTest < Test::Unit::TestCase
   end
   
   def test_fetching
-    ycrawler = Crawler.new('https://news.ycombinator.com/')
-    entries = ycrawler.fetch(30)
+
+    entries = setup
     
     assert_equal 30, entries.count, "Entries should return 30 entries"
+
+  end
+
+  def test_filter_more_than_words
+
+    setup
+    
+    ordered_entries = @ycrawler.words_more_than(5, :comments)
+    
+    minor_one = ordered_entries.first.comments
+    major_one = ordered_entries.last.comments
+    
+    assert_operator major_one,:>=,minor_one, "Entries should be sort by comments attr"
+  end
+
+  def test_filter_less_than_words
+
+    setup
+    
+    ordered_entries = @ycrawler.words_less_than(5, :points)
+    
+    minor_one = ordered_entries.first.points
+    major_one = ordered_entries.last.points
+    
+    assert_operator major_one,:>=,minor_one, "Entries should be ordered asc by comments attr"
 
   end
 
@@ -30,31 +61,12 @@ class CrawlerTest < Test::Unit::TestCase
 #    assert_not_equal 30, entries.count, "Entries should return less than 30 entries"
 #  end  
 
-  def test_filter_more_than_words
-    ycrawler = Crawler.new('https://news.ycombinator.com/')
-    ycrawler.fetch(30)
-    
-    ordered_entries = ycrawler.words_more_than(5, :comments)
-    
-    minor_one = ordered_entries.first.comments
-    major_one = ordered_entries.last.comments
-    
-    assert_operator major_one,:>=,minor_one, "Entries should be sort by comments attr"
-  end
-
-  def test_filter_less_than_words
-    ycrawler = Crawler.new('https://news.ycombinator.com/')
-    ycrawler.fetch(30)
-    
-    ordered_entries = ycrawler.words_less_than(5, :points)
-    
-    minor_one = ordered_entries.first.points
-    major_one = ordered_entries.last.points
-    
-    assert_operator major_one,:>=,minor_one, "Entries should be ordered asc by comments attr"
-
-  end
   
+  def setup
+    @ycrawler = Crawler.new(DEFAULT_OPTIONS[:base_url])
+    @ycrawler.fetch(DEFAULT_OPTIONS[:requested_rows])    
+  end
+
   
 end
 
