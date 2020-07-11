@@ -1,5 +1,6 @@
+# coding: utf-8
 require_relative './crawler'
-
+require 'csv'
 
  DEFAULT_OPTIONS={
     base_url: 'https://news.ycombinator.com/',
@@ -19,3 +20,6 @@ require_relative './crawler'
  puts ycrawler.words_more_than(5,:comments).count
  puts ycrawler.words_more_than(5,:comments)
 
+
+
+ CSV.open('reserved.csv', 'w') { |csv| csv << ycrawler.entries }

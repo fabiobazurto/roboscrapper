@@ -22,7 +22,7 @@ class Entry
 
   #Public Methods
   def to_s
-    "#{@order}. #{@title}"
+    "#{@order} #{@title}"
   end
   
 
