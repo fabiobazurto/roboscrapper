@@ -13,8 +13,9 @@ class CrawlerTest < Test::Unit::TestCase
     # Creating a valid Entry object
     title_name = "Robert"
     rank = "1"
+    fake_entry = "#{rank}. #{title_name}"
     entry = Entry.new({title:title_name, order:rank, comments:'', points:''})
-    assert_equal entry.to_s,title_name, 'Entry should have valid properties'
+    assert_equal entry.to_s,fake_entry, 'Entry should have valid properties'
 
     # Creating an empty Entry object
     assert_raise {
