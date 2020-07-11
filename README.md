@@ -24,6 +24,10 @@ Follow the next steps:
     
     bundle install
 
+# Running Tests
+
+ruby crawler_test.rb
+
 # Running demo
 
 ruby run.rb
