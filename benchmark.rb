@@ -16,7 +16,7 @@ include Benchmark
    ycrawler = Crawler.new(DEFAULT_OPTIONS[:base_url])
    
    x.report("Crawler.fetch") do
-     10.times do
+     500.times do
        ycrawler.fetch(DEFAULT_OPTIONS[:requested_rows])
      end
    end
@@ -24,7 +24,7 @@ include Benchmark
    ycrawler.fetch(DEFAULT_OPTIONS[:requested_rows])   
    
    x.report("Crawler.filter1") do
-     10.times do
+     500.times do
        ycrawler.words_less_than(5, :points)       
      end
    end

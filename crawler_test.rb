@@ -9,7 +9,6 @@ class CrawlerTest < Test::Unit::TestCase
   }
   
   def test_create_entry
-
     # Creating a valid Entry object
     title_name = "Robert"
     rank = "1."
@@ -24,17 +23,25 @@ class CrawlerTest < Test::Unit::TestCase
   end
 
   def test_fetching
-
-    entries = setup
-    
+    entries = @ycrawler.entries #setup
     assert_equal 30, entries.count, "Entries should return 30 entries"
-
   end
 
-  def test_filter_more_than_words
+  def test_fetching_40
+    DEFAULT_OPTIONS[:requested_rows]=40
+    entries = setup
+    DEFAULT_OPTIONS[:requested_rows]=30    
+    assert_equal 40, entries.count, "Entries should return 40 entries"
+  end
 
-    setup
-    
+  def test_not_enough_entries
+    DEFAULT_OPTIONS[:base_url]="https://news.ycombinator.com/news?p=17"
+    entries = setup
+    assert_operator entries.count,:<=,30, "Entries should return not enough"
+  end
+
+  
+  def test_filter_more_than_words
     ordered_entries = @ycrawler.words_more_than(5, :comments)
     
     minor_one = ordered_entries.first.comments
@@ -44,9 +51,6 @@ class CrawlerTest < Test::Unit::TestCase
   end
 
   def test_filter_less_than_words
-
-    setup
-    
     ordered_entries = @ycrawler.words_less_than(5, :points)
     
     minor_one = ordered_entries.first.points
@@ -62,7 +66,7 @@ class CrawlerTest < Test::Unit::TestCase
 #    assert_not_equal 30, entries.count, "Entries should return less than 30 entries"
 #  end  
 
-  
+  private
   def setup
     @ycrawler = Crawler.new(DEFAULT_OPTIONS[:base_url])
     @ycrawler.fetch(DEFAULT_OPTIONS[:requested_rows])    
